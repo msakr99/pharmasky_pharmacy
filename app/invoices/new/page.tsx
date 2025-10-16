@@ -367,7 +367,7 @@ export default function NewInvoicePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="p-6 max-w-6xl mx-auto">
+      <div className="p-3 sm:p-6 max-w-6xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">إضافة فاتورة مبيعات جديدة</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">أدخل بيانات الفاتورة والمنتجات</p>

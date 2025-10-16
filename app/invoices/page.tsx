@@ -128,7 +128,7 @@ export default function InvoicesPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavBar />
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF6B35]"></div>
           </div>
@@ -142,7 +142,7 @@ export default function InvoicesPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
       
-      <div className="p-6 space-y-6">
+      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         {error && (
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
             <p className="text-amber-700 dark:text-amber-300">{error}</p>

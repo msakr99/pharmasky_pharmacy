@@ -121,7 +121,7 @@ export default function ReturnsPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavBar />
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
           </div>
@@ -135,7 +135,7 @@ export default function ReturnsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
       
-      <div className="p-6">
+      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6">

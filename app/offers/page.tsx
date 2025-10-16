@@ -162,12 +162,12 @@ export default function OffersPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
       
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="p-3 sm:p-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">أقصى العروض</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">جدول يحتوي على اسم الصنف، السعر، الخصم، الكمية، والمخزن</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">أقصى العروض</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1 text-xs sm:text-sm">جدول يحتوي على اسم الصنف، السعر، الخصم، الكمية، والمخزن</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">

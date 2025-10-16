@@ -75,10 +75,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-6 bg-gray-50 dark:bg-gray-900">
       <div className="w-full max-w-sm">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h1 className="text-2xl font-semibold mb-6 text-center text-gray-900 dark:text-white">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
+          <h1 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-center text-gray-900 dark:text-white">
             تسجيل الدخول - نظام الصيدلية
           </h1>
           
