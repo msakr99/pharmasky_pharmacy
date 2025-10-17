@@ -2,9 +2,11 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/dashboard',
   OFFERS: '/offers',
-  SKYREP: '/skyrep',
+  SKYREP: '/skysales',
   INVOICES: '/invoices',
   RETURNS: '/returns',
+  SHORTAGES: '/shortages',
+  CLAIMS: '/claims',
 }
 
 export const NAVIGATION_ITEMS = [
@@ -21,11 +23,19 @@ export const NAVIGATION_ITEMS = [
     href: ROUTES.RETURNS,
   },
   {
+    label: 'النواقص',
+    href: ROUTES.SHORTAGES,
+  },
+  {
+    label: 'المطالبات',
+    href: ROUTES.CLAIMS,
+  },
+  {
     label: 'العروض',
     href: ROUTES.OFFERS,
   },
   {
-    label: 'SkyRep',
+    label: 'SkySales',
     href: ROUTES.SKYREP,
   },
 ]

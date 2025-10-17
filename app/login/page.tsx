@@ -79,7 +79,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
           <h1 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-center text-gray-900 dark:text-white">
-            تسجيل الدخول - نظام الصيدلية
+            PharmaSky
           </h1>
           
           <form className="space-y-4" onSubmit={handleSubmit} noValidate>

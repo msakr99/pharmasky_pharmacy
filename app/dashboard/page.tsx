@@ -149,7 +149,7 @@ export default function DashboardPage() {
     if (!phone || phone === 'غير محدد') return phone
     if (phone.startsWith('+20')) {
       const num = phone.slice(3)
-      return `+20 ${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`
+      return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`
     }
     return phone
   }
@@ -208,26 +208,18 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
       
-      <div className="p-3 sm:p-6">
-        {/* Header */}
-        <div className="mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">تفاصيل الصيدلية</h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
-            مرحباً {username}، إليك نظرة عامة على صيدليتك
-          </p>
-        </div>
-
+      <div className="p-3 sm:p-4 lg:p-6 max-w-7xl mx-auto">
         {/* Pharmacy Information Card */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                <span className="text-lg sm:text-xl font-bold text-blue-800 dark:text-blue-200">
+              <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <span className="text-lg sm:text-xl font-bold text-white">
                   {userProfile.user.id.toString().slice(-2)}
                 </span>
               </div>
               <div className="flex-1">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1">
                   {userProfile.user.name}
                 </h2>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-500 dark:text-gray-400">
@@ -238,8 +230,8 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <div className="text-left sm:text-right">
-              <div className={`text-2xl font-bold ${
+            <div className="text-left lg:text-right">
+              <div className={`text-2xl sm:text-3xl font-bold ${
                 balance < 0 
                   ? 'text-red-600 dark:text-red-400' 
                   : 'text-green-600 dark:text-green-400'
@@ -253,28 +245,28 @@ export default function DashboardPage() {
           </div>
 
           {/* Pharmacy Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <div>
-              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">رقم الموبايل</label>
-              <div className="mt-1 text-lg font-medium text-gray-900 dark:text-white">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
+              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">رقم الموبايل</label>
+              <div className="mt-1 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
                 {formatPhone(userProfile.user.username)}
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">المدينة</label>
-              <div className="mt-1 text-lg font-medium text-gray-900 dark:text-white">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
+              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">المدينة</label>
+              <div className="mt-1 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
                 {userProfile.city?.name || 'غير محدد'}
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الشخص الرئيسي</label>
-              <div className="mt-1 text-lg font-medium text-gray-900 dark:text-white">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
+              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">الشخص الرئيسي</label>
+              <div className="mt-1 text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
                 {userProfile.key_person || 'غير محدد'}
               </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-500 dark:text-gray-400">مسؤول التحصيل</label>
-              <div className="mt-1 text-lg font-medium text-blue-600 dark:text-blue-400">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
+              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">مسؤول التحصيل</label>
+              <div className="mt-1 text-sm sm:text-base font-semibold text-blue-600 dark:text-blue-400">
                 {userProfile.area_manager || 'غير محدد'}
               </div>
             </div>
@@ -282,106 +274,107 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">الإجراءات السريعة</h3>
+        <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">الإجراءات السريعة</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             <button
               onClick={() => router.push('/invoices')}
-              className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+              className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span className="font-medium">الفواتير</span>
+              <span className="text-xs sm:text-sm font-medium text-center">الفواتير</span>
             </button>
 
             <button
               onClick={() => router.push('/returns')}
-              className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+              className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span className="font-medium">المرتجعات</span>
+              <span className="text-xs sm:text-sm font-medium text-center">المرتجعات</span>
             </button>
 
             <button
               onClick={() => router.push('/offers')}
-              className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+              className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
               </svg>
-              <span className="font-medium">العروض</span>
+              <span className="text-xs sm:text-sm font-medium text-center">العروض</span>
             </button>
 
             <button
               onClick={() => router.push('/invoices/new')}
-              className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+              className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span className="font-medium">إضافة فاتورة</span>
+              <span className="text-xs sm:text-sm font-medium text-center">إضافة فاتورة</span>
             </button>
 
             <button
-              onClick={() => router.push('/skyrep')}
-              className="flex items-center justify-center gap-3 p-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all shadow-md hover:shadow-lg"
+              onClick={() => router.push('/account-statement')}
+              className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-7 4h8M7 5h10a2 2 0 012 2v10a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2z" />
               </svg>
-              <span className="font-medium">المساعد الذكي</span>
+              <span className="text-xs sm:text-sm font-medium text-center">كشف حساب</span>
             </button>
           </div>
         </div>
 
-        {/* Statistics Cards - First Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">الحد الائتماني</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">الحد الائتماني</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                   {formatCurrency(creditLimit)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">الائتمان المتاح</p>
-                <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">الائتمان المتاح</p>
+                <p className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(remainingCredit)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">آخر فاتورة</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">آخر فاتورة</p>
+                <p className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                   {userProfile.latest_invoice_date 
                     ? new Date(userProfile.latest_invoice_date).toLocaleDateString('ar-EG', { 
                         year: 'numeric', 
@@ -394,16 +387,16 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-red-100 dark:bg-red-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">فترة الدفع</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">فترة الدفع</p>
+                <p className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                   {userProfile.payment_period 
                     ? `${userProfile.payment_period.name} (${userProfile.payment_period.period_in_days} يوم)`
                     : 'غير محدد'}
@@ -414,8 +407,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Financial Data Section */}
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">البيانات المالية</h3>
+        <div className="mb-4 sm:mb-6 flex items-center justify-between">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">البيانات المالية</h3>
           {loadingFinancial && (
             <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -424,17 +417,17 @@ export default function DashboardPage() {
           )}
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">المدفوعات المسددة</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">المدفوعات المسددة</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                   {accountSummary ? formatCurrency(accountSummary.period_summary.total_payments_made) : '0 ج.م'}
                 </p>
                 {accountSummary && (
@@ -446,16 +439,16 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">المدفوعات المستلمة</p>
-                <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
+              <div className="ml-3 sm:ml-4 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">المدفوعات المستلمة</p>
+                <p className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">
                   {accountSummary ? formatCurrency(accountSummary.period_summary.total_payments_received) : '0 ج.م'}
                 </p>
                 {accountSummary && (
@@ -467,16 +460,16 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">الفترة المالية</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">مدة الأجل</p>
+                <p className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
                   {accountSummary ? `${accountSummary.period_summary.days} يوم` : 'غير محدد'}
                 </p>
                 {accountSummary && (
@@ -488,16 +481,16 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
             <div className="flex items-center">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">المعاملات الأخيرة</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <div className="ml-3 sm:ml-4 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">المعاملات الأخيرة</p>
+                <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                   {accountSummary ? accountSummary.recent_transactions.length : 0}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

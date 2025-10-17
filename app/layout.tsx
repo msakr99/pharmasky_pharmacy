@@ -2,8 +2,13 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "نظام إدارة الصيدلية",
-  description: "نظام متكامل لإدارة الصيدلية",
+  title: " PharmaSky ",
+  description: "Pharmasky-فارماسكاي ",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/icon.png',
+  },
 }
 
 export default function RootLayout({
