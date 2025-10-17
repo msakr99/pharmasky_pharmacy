@@ -18,6 +18,7 @@ export default function SkySalesPage() {
   const [isRecording, setIsRecording] = useState(false)
   const [isInCall, setIsInCall] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [isRequestingMic, setIsRequestingMic] = useState(false)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
   const [audioChunks, setAudioChunks] = useState<Blob[]>([])
   const [callInterval, setCallInterval] = useState<NodeJS.Timeout | null>(null)
@@ -120,7 +121,22 @@ export default function SkySalesPage() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      setIsRequestingMic(true)
+      
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('الميكروفون غير مدعوم في هذا المتصفح')
+      }
+
+      // Request microphone permission with better error handling
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      })
+      
       const recorder = new MediaRecorder(stream)
       
       recorder.ondataavailable = (event) => {
@@ -140,13 +156,45 @@ export default function SkySalesPage() {
         await sendAudioToServer(audioBlob)
       }
 
+      recorder.onerror = (event) => {
+        console.error('Recording error:', event)
+        setIsRecording(false)
+        const errorMessage: Message = {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: 'حدث خطأ في التسجيل. الرجاء المحاولة مرة أخرى.'
+        }
+        setMessages(prev => [...prev, errorMessage])
+      }
+
       setMediaRecorder(recorder)
       setAudioChunks([])
       recorder.start()
       setIsRecording(true)
-    } catch (error) {
+      setIsRequestingMic(false)
+    } catch (error: any) {
       console.error('Error accessing microphone:', error)
-      alert('عذراً، لا يمكن الوصول إلى الميكروفون. الرجاء التحقق من الإذن.')
+      setIsRecording(false)
+      setIsRequestingMic(false)
+      
+      let errorMessage = 'عذراً، لا يمكن الوصول إلى الميكروفون.'
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'تم رفض إذن الميكروفون. الرجاء السماح بالوصول إلى الميكروفون في إعدادات المتصفح.'
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'لم يتم العثور على ميكروفون. الرجاء التأكد من وجود ميكروفون متصل.'
+      } else if (error.name === 'NotSupportedError') {
+        errorMessage = 'الميكروفون غير مدعوم في هذا المتصفح.'
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'الميكروفون قيد الاستخدام من قبل تطبيق آخر.'
+      }
+      
+      const errorMsg: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: errorMessage
+      }
+      setMessages(prev => [...prev, errorMsg])
     }
   }
 
@@ -200,7 +248,20 @@ export default function SkySalesPage() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      setIsRequestingMic(true)
+      
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('الميكروفون غير مدعوم في هذا المتصفح')
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      })
       
       // Start continuous recording and sending
       const startCall = () => {
@@ -217,6 +278,15 @@ export default function SkySalesPage() {
           if (chunks.length > 0) {
             const audioBlob = new Blob(chunks, { type: 'audio/wav' })
             await sendAudioToServer(audioBlob)
+          }
+        }
+
+        recorder.onerror = (event) => {
+          console.error('Call recording error:', event)
+          setIsInCall(false)
+          if (callInterval) {
+            clearInterval(callInterval)
+            setCallInterval(null)
           }
         }
 
@@ -239,10 +309,32 @@ export default function SkySalesPage() {
         }
       }, 2000) // Send chunks every 2 seconds
 
+      setCallInterval(interval)
       setIsInCall(true)
-    } catch (error) {
+      setIsRequestingMic(false)
+    } catch (error: any) {
       console.error('Error starting call:', error)
-      alert('عذراً، لا يمكن بدء المكالمة. الرجاء التحقق من إذن الميكروفون.')
+      setIsInCall(false)
+      setIsRequestingMic(false)
+      
+      let errorMessage = 'عذراً، لا يمكن بدء المكالمة.'
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'تم رفض إذن الميكروفون. الرجاء السماح بالوصول إلى الميكروفون في إعدادات المتصفح.'
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'لم يتم العثور على ميكروفون. الرجاء التأكد من وجود ميكروفون متصل.'
+      } else if (error.name === 'NotSupportedError') {
+        errorMessage = 'الميكروفون غير مدعوم في هذا المتصفح.'
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'الميكروفون قيد الاستخدام من قبل تطبيق آخر.'
+      }
+      
+      const errorMsg: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: errorMessage
+      }
+      setMessages(prev => [...prev, errorMsg])
     }
   }
 
@@ -300,19 +392,21 @@ export default function SkySalesPage() {
                         {/* Voice Call Button - Enhanced */}
                         <button
                           onClick={handleVoiceCall}
-                          disabled={isSending || isRecording}
+                          disabled={isSending || isRecording || isRequestingMic}
                           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isInCall
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg'
                               : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
-                          title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
+                          title={isInCall ? 'إنهاء المكالمة' : isRequestingMic ? 'جاري طلب إذن الميكروفون...' : 'مكالمة صوتية'}
                         >
                           {isInCall ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                               <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
                             </svg>
+                          ) : isRequestingMic ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
                           ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -328,12 +422,14 @@ export default function SkySalesPage() {
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg' 
                               : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           }`}
-                          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+                          title={isRecording ? 'إيقاف التسجيل' : isRequestingMic ? 'جاري طلب إذن الميكروفون...' : 'تسجيل صوتي'}
                         >
                           {isRecording ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <rect x="6" y="6" width="12" height="12" rx="2" />
                             </svg>
+                          ) : isRequestingMic ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
                           ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -450,19 +546,21 @@ export default function SkySalesPage() {
                         {/* Voice Call Button - Enhanced */}
                         <button
                           onClick={handleVoiceCall}
-                          disabled={isSending || isRecording}
+                          disabled={isSending || isRecording || isRequestingMic}
                           className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isInCall
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg'
                               : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
-                          title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
+                          title={isInCall ? 'إنهاء المكالمة' : isRequestingMic ? 'جاري طلب إذن الميكروفون...' : 'مكالمة صوتية'}
                         >
                           {isInCall ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                               <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
                             </svg>
+                          ) : isRequestingMic ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
                           ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -478,12 +576,14 @@ export default function SkySalesPage() {
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg' 
                               : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           }`}
-                          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+                          title={isRecording ? 'إيقاف التسجيل' : isRequestingMic ? 'جاري طلب إذن الميكروفون...' : 'تسجيل صوتي'}
                         >
                           {isRecording ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <rect x="6" y="6" width="12" height="12" rx="2" />
                             </svg>
+                          ) : isRequestingMic ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-400 border-t-transparent"></div>
                           ) : (
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
