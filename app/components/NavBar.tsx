@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { getToken, removeToken, getUser } from '../lib/token-storage'
 import { NAVIGATION_ITEMS, ROUTES } from '../lib/constants'
 import type { NavigationItem } from '../lib/types'
+import NotificationBadge from './NotificationBadge'
 
 interface NavLinkProps {
   href: string
@@ -133,6 +134,18 @@ export default function NavBar({ className }: NavBarProps) {
                 isActive={pathname?.startsWith(item.href!)}
               />
             ))}
+            {/* Notifications Link */}
+            <Link 
+              href="/notifications"
+              className={`px-3 py-2 rounded-lg transition-colors font-medium flex items-center gap-2 ${
+                pathname?.startsWith('/notifications')
+                  ? 'bg-[#FF6B35] text-white' 
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              <NotificationBadge />
+              <span>الإشعارات</span>
+            </Link>
           </nav>
         </div>
         
@@ -229,6 +242,20 @@ export default function NavBar({ className }: NavBarProps) {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Mobile Notifications Link */}
+            <Link
+              href="/notifications"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`block px-3 py-2.5 rounded-lg transition-colors font-medium flex items-center gap-2 ${
+                pathname?.startsWith('/notifications')
+                  ? 'bg-[#FF6B35] text-white'
+                  : 'text-white/90 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              <NotificationBadge />
+              <span>الإشعارات</span>
+            </Link>
             
             {/* Mobile User Menu */}
             <div className="pt-4 mt-4 border-t border-white/20">
