@@ -430,133 +430,131 @@ export default function SkySalesPage() {
     <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
       <NavBar />
       
-      {/* Main Chat Container */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full pt-2 sm:pt-6">
+      {/* Main Chat Container - ChatGPT Style */}
+      <div className="flex-1 flex flex-col w-full">
         {messages.length === 0 ? (
-          /* Welcome Screen - Centered with Input */
-          <div className="flex-1 flex flex-col items-center justify-start px-2 sm:px-4 pt-16 sm:pt-20">
-            <div className="text-center mb-8">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
+          /* Welcome Screen - ChatGPT Style */
+          <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+            <div className="text-center mb-8 max-w-2xl">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                 مرحباً بك في SkySales
               </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
+                كيف يمكنني مساعدتك اليوم؟
+              </p>
             </div>
             
-            {/* Input Field - Centered */}
-            <div className="max-w-3xl mx-auto w-full">
-              <div className="relative flex items-end gap-1 sm:gap-2">
-                {/* Additional Actions - Only show when input is empty */}
-                {!inputMessage.trim() && (
-                  <>
-                    {/* Voice Call Button */}
-                    <button
-                      onClick={handleVoiceCall}
-                      disabled={isSending || isRecording}
-                      className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
-                        isInCall
-                          ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                          : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
-                    >
-                      {isInCall ? (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                          <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                      )}
-                    </button>
-                    
-                    {/* Record Button */}
-                    <button
-                      onClick={handleRecord}
-                      className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
-                        isRecording 
-                          ? 'bg-red-500 hover:bg-red-600 text-white' 
-                          : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
-                      }`}
-                      title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
-                    >
-                      {isRecording ? (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <rect x="6" y="6" width="12" height="12" rx="2" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                      )}
-                    </button>
-                  </>
-                )}
-
-                {/* Input Field */}
-                <div className="flex-1 relative bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-600 shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
+            {/* Input Field - Centered like ChatGPT */}
+            <div className="w-full max-w-3xl">
+              <div className="relative">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-600 shadow-lg focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder="أرسل رسالة إلى SkySales"
-                    className="w-full resize-none bg-transparent px-3 sm:px-4 py-2 sm:py-3 pr-3 sm:pr-4 pl-10 sm:pl-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-sm sm:text-[15px] leading-relaxed"
+                    className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
                     rows={1}
                     disabled={isSending}
-                    style={{ maxHeight: '200px', minHeight: '44px' }}
+                    style={{ maxHeight: '200px', minHeight: '52px' }}
                   />
-                </div>
-
-                {/* Send Button */}
-                {inputMessage.trim() && (
-                  <button
-                    onClick={handleSend}
-                    disabled={isSending}
-                    className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-full transition-all flex items-center justify-center shadow-sm hover:shadow-md disabled:cursor-not-allowed"
-                    title="إرسال"
-                  >
-                    {isSending ? (
-                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
-                    ) : (
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
-                      </svg>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                    {!inputMessage.trim() && (
+                      <>
+                        <button
+                          onClick={handleVoiceCall}
+                          disabled={isSending || isRecording}
+                          className={`p-2 rounded-lg transition-all ${
+                            isInCall
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
+                        >
+                          {isInCall ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                              <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={handleRecord}
+                          className={`p-2 rounded-lg transition-all ${
+                            isRecording 
+                              ? 'bg-red-500 hover:bg-red-600 text-white' 
+                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                          }`}
+                          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+                        >
+                          {isRecording ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <rect x="6" y="6" width="12" height="12" rx="2" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                          )}
+                        </button>
+                      </>
                     )}
-                  </button>
-                )}
+                    
+                    {inputMessage.trim() && (
+                      <button
+                        onClick={handleSend}
+                        disabled={isSending}
+                        className="p-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-lg transition-all flex items-center justify-center disabled:cursor-not-allowed"
+                        title="إرسال"
+                      >
+                        {isSending ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
+                          </svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         ) : (
-          /* Messages Area - When there are messages */
-          <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6 pb-28 sm:pb-32">
-            <div className="space-y-4 sm:space-y-6 max-w-3xl mx-auto">
-
+          /* Messages Area - ChatGPT Style */
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-4 py-6">
               {messages.map((message, index) => (
-                <div key={message.id} className="group">
-                  <div className={`flex gap-2 sm:gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div key={message.id} className="mb-6">
+                  <div className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     {message.role === 'assistant' && (
-                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-sm bg-[#19C37D] flex items-center justify-center">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       </div>
                     )}
                     
                     <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
-                      <div className={`prose prose-sm max-w-none ${
+                      <div className={`${
                         message.role === 'user' 
-                          ? 'bg-[#F4F4F4] dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl sm:rounded-3xl px-3 py-2 sm:px-4 sm:py-3 inline-block max-w-[85%] sm:max-w-none'
+                          ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl px-4 py-3 max-w-[80%]'
                           : 'text-gray-900 dark:text-gray-100'
                       }`}>
-                        <p className="whitespace-pre-wrap leading-relaxed m-0 text-sm sm:text-[15px]">{message.content}</p>
+                        <p className="whitespace-pre-wrap leading-relaxed text-base">{message.content}</p>
                       </div>
                     </div>
                     
                     {message.role === 'user' && (
-                      <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-sm bg-[#FF6B35] flex items-center justify-center">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#FF6B35] flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                       </div>
@@ -566,18 +564,18 @@ export default function SkySalesPage() {
               ))}
               
               {isSending && (
-                <div className="group">
-                  <div className="flex gap-2 sm:gap-4 justify-start">
-                    <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-sm bg-[#19C37D] flex items-center justify-center">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mb-6">
+                  <div className="flex gap-3 justify-start">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#19C37D] flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <div className="flex gap-1 py-2 sm:py-3">
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                      <div className="flex gap-1 py-3">
+                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                       </div>
                     </div>
                   </div>
@@ -589,92 +587,88 @@ export default function SkySalesPage() {
           </div>
         )}
 
-        {/* Input Area: fixed at bottom when messages exist */}
+        {/* Input Area: Fixed at bottom like ChatGPT */}
         {messages.length > 0 && (
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur px-2 sm:px-4 py-3 sm:py-4 pb-[env(safe-area-inset-bottom)]">
-            <div className="max-w-3xl mx-auto w-full">
-              <div className="relative flex items-end gap-1 sm:gap-2">
-                {/* Additional Actions - Only show when input is empty */}
-                {!inputMessage.trim() && (
-                  <>
-                    {/* Voice Call Button */}
-                    <button
-                      onClick={handleVoiceCall}
-                      disabled={isSending || isRecording}
-                      className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
-                        isInCall
-                          ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                          : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
-                    >
-                      {isInCall ? (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                          <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                      )}
-                    </button>
-                    
-                    {/* Record Button */}
-                    <button
-                      onClick={handleRecord}
-                      className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-all ${
-                        isRecording 
-                          ? 'bg-red-500 hover:bg-red-600 text-white' 
-                          : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
-                      }`}
-                      title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
-                    >
-                      {isRecording ? (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <rect x="6" y="6" width="12" height="12" rx="2" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                      )}
-                    </button>
-                  </>
-                )}
-
-                {/* Input Field */}
-                <div className="flex-1 relative bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl border border-gray-300 dark:border-gray-600 shadow-sm focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="relative">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-600 shadow-lg focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder="أرسل رسالة إلى SkySales"
-                    className="w-full resize-none bg-transparent px-3 sm:px-4 py-2 sm:py-3 pr-3 sm:pr-4 pl-10 sm:pl-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-sm sm:text-[15px] leading-relaxed"
+                    className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
                     rows={1}
                     disabled={isSending}
-                    style={{ maxHeight: '200px', minHeight: '44px' }}
+                    style={{ maxHeight: '200px', minHeight: '52px' }}
                   />
-                </div>
-
-                {/* Send Button */}
-                {inputMessage.trim() && (
-                  <button
-                    onClick={handleSend}
-                    disabled={isSending}
-                    className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-full transition-all flex items-center justify-center shadow-sm hover:shadow-md disabled:cursor-not-allowed"
-                    title="إرسال"
-                  >
-                    {isSending ? (
-                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
-                    ) : (
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
-                      </svg>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                    {!inputMessage.trim() && (
+                      <>
+                        <button
+                          onClick={handleVoiceCall}
+                          disabled={isSending || isRecording}
+                          className={`p-2 rounded-lg transition-all ${
+                            isInCall
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
+                        >
+                          {isInCall ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                              <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                          )}
+                        </button>
+                        
+                        <button
+                          onClick={handleRecord}
+                          className={`p-2 rounded-lg transition-all ${
+                            isRecording 
+                              ? 'bg-red-500 hover:bg-red-600 text-white' 
+                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                          }`}
+                          title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
+                        >
+                          {isRecording ? (
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <rect x="6" y="6" width="12" height="12" rx="2" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                          )}
+                        </button>
+                      </>
                     )}
-                  </button>
-                )}
+                    
+                    {inputMessage.trim() && (
+                      <button
+                        onClick={handleSend}
+                        disabled={isSending}
+                        className="p-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-lg transition-all flex items-center justify-center disabled:cursor-not-allowed"
+                        title="إرسال"
+                      >
+                        {isSending ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
+                          </svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
