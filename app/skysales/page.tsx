@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import NavBar from '../components/NavBar'
-import { getToken, removeToken } from '../lib/auth'
+import { getToken, removeToken } from '../lib/token-storage'
 
 interface Message {
   id: string
