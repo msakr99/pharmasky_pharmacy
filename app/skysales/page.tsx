@@ -277,32 +277,34 @@ export default function SkySalesPage() {
               </p>
             </div>
             
-            {/* Input Field - Centered like ChatGPT */}
-            <div className="w-full max-w-3xl">
+            {/* Input Field - Enhanced ChatGPT Style */}
+            <div className="w-full max-w-4xl">
               <div className="relative">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-600 shadow-lg focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:shadow-2xl transition-all duration-200">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder="أرسل رسالة إلى SkySales"
-                    className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
+                    placeholder="اكتب رسالتك هنا..."
+                    className="w-full resize-none bg-transparent px-5 py-4 pr-16 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
                     rows={1}
                     disabled={isSending}
-                    style={{ maxHeight: '200px', minHeight: '52px' }}
+                    style={{ maxHeight: '200px', minHeight: '56px' }}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                  
+                  {/* Enhanced Action Buttons */}
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
                     {!inputMessage.trim() && (
                       <>
-                        {/* Voice Call Button - ChatGPT Style */}
+                        {/* Voice Call Button - Enhanced */}
                         <button
                           onClick={handleVoiceCall}
                           disabled={isSending || isRecording}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isInCall
-                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg'
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                           title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
                         >
@@ -318,13 +320,13 @@ export default function SkySalesPage() {
                           )}
                         </button>
                         
-                        {/* Record Button - ChatGPT Style */}
+                        {/* Record Button - Enhanced */}
                         <button
                           onClick={handleRecord}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isRecording 
-                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg' 
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           }`}
                           title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                         >
@@ -341,17 +343,18 @@ export default function SkySalesPage() {
                       </>
                     )}
                     
+                    {/* Send Button - Enhanced */}
                     {inputMessage.trim() && (
                       <button
                         onClick={handleSend}
                         disabled={isSending}
-                        className="p-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-lg transition-all flex items-center justify-center disabled:cursor-not-allowed"
+                        className="w-9 h-9 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                         title="إرسال"
                       >
                         {isSending ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                         ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
                           </svg>
                         )}
@@ -422,34 +425,36 @@ export default function SkySalesPage() {
           </div>
         )}
 
-        {/* Input Area: Fixed at bottom like ChatGPT */}
+        {/* Input Area: Enhanced ChatGPT Style */}
         {messages.length > 0 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-4">
-            <div className="max-w-3xl mx-auto">
+          <div className="sticky bottom-0 border-t border-gray-200/80 dark:border-gray-700/80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm px-4 py-3 pb-safe">
+            <div className="max-w-4xl mx-auto">
               <div className="relative">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-300 dark:border-gray-600 shadow-lg focus-within:border-gray-400 dark:focus-within:border-gray-500 transition-all">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-600 shadow-xl focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:shadow-2xl transition-all duration-200">
                   <textarea
                     ref={textareaRef}
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder="أرسل رسالة إلى SkySales"
-                    className="w-full resize-none bg-transparent px-4 py-3 pr-12 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
+                    placeholder="اكتب رسالتك هنا..."
+                    className="w-full resize-none bg-transparent px-5 py-4 pr-16 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none text-base leading-relaxed"
                     rows={1}
                     disabled={isSending}
-                    style={{ maxHeight: '200px', minHeight: '52px' }}
+                    style={{ maxHeight: '200px', minHeight: '56px' }}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                  
+                  {/* Enhanced Action Buttons */}
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
                     {!inputMessage.trim() && (
                       <>
-                        {/* Voice Call Button - ChatGPT Style */}
+                        {/* Voice Call Button - Enhanced */}
                         <button
                           onClick={handleVoiceCall}
                           disabled={isSending || isRecording}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isInCall
-                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg'
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                           title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
                         >
@@ -465,13 +470,13 @@ export default function SkySalesPage() {
                           )}
                         </button>
                         
-                        {/* Record Button - ChatGPT Style */}
+                        {/* Record Button - Enhanced */}
                         <button
                           onClick={handleRecord}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
                             isRecording 
-                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
-                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse shadow-lg' 
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 hover:shadow-md'
                           }`}
                           title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                         >
@@ -488,17 +493,18 @@ export default function SkySalesPage() {
                       </>
                     )}
                     
+                    {/* Send Button - Enhanced */}
                     {inputMessage.trim() && (
                       <button
                         onClick={handleSend}
                         disabled={isSending}
-                        className="p-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white dark:text-gray-900 rounded-lg transition-all flex items-center justify-center disabled:cursor-not-allowed"
+                        className="w-9 h-9 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                         title="إرسال"
                       >
                         {isSending ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white dark:border-gray-900 border-t-transparent"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                         ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-7-7l7 7-7 7" />
                           </svg>
                         )}
