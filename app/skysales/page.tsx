@@ -1,162 +1,61 @@
 "use client"
 
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getToken, getUser } from '../lib/token-storage'
 import NavBar from '../components/NavBar'
-import { AI_AGENT_ENDPOINTS } from '../lib/constants'
-import { AudioRecorder, ChunkedAudioRecorder, blobToBase64, playAudioBase64 } from '../lib/audio-utils'
+import { getToken, removeToken } from '../lib/auth'
 
-interface ChatMessage {
+interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
-  timestamp: Date
 }
 
 export default function SkySalesPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isInCall, setIsInCall] = useState(false)
-  const [sessionId, setSessionId] = useState<number | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [loading, setLoading] = useState(true)
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([])
+  const [callInterval, setCallInterval] = useState<NodeJS.Timeout | null>(null)
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const audioRecorderRef = useRef<AudioRecorder | null>(null)
-  const callRecorderRef = useRef<ChunkedAudioRecorder | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const token = getToken()
-    if (!token) {
-      router.replace('/login')
-      return
+    const checkAuth = async () => {
+      const token = getToken()
+      if (!token) {
+        router.push('/login')
+        return
+      }
+      setLoading(false)
     }
-
-    // No welcome message - clean like ChatGPT
-    setMessages([])
-    setLoading(false)
+    checkAuth()
   }, [router])
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  useEffect(() => {
-    adjustTextareaHeight()
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+    }
   }, [inputMessage])
 
-  const scrollToBottom = () => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  const adjustTextareaHeight = () => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px'
-    }
-  }
-
-  // API call to send message to AI agent
-  const sendMessageToAPI = async (message: string): Promise<string> => {
-    const token = getToken()
-    if (!token) {
-      throw new Error('يجب تسجيل الدخول أولاً')
-    }
-    
-    console.log('Sending message to API:', { 
-      message, 
-      endpoint: AI_AGENT_ENDPOINTS.CHAT,
-      token: token.substring(0, 10) + '...' 
-    })
-
-    try {
-      const response = await fetch(AI_AGENT_ENDPOINTS.CHAT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        },
-        body: JSON.stringify({
-          message: message
-        })
-      })
-
-      console.log('API Response status:', response.status, response.statusText)
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        let headersObject: Record<string, string> = {}
-        try {
-          headersObject = Object.fromEntries(response.headers.entries())
-        } catch (_e) {
-          // ignore header extraction errors
-        }
-
-        console.error('API Error:', response.status, response.statusText)
-        console.error('API Endpoint:', AI_AGENT_ENDPOINTS.CHAT)
-        console.error('API Error Headers:', headersObject)
-        console.error('API Error Body:', errorText)
-        
-        // Try to parse error message from response
-        let errorMessage = `فشل الاتصال بالخادم (${response.status})`
-        let lowerErrorText = (errorText || '').toLowerCase()
-        try {
-          const errorData = JSON.parse(errorText || '{}') as any
-          const rawMsg = errorData?.message || errorData?.detail || errorData?.error
-          if (rawMsg) {
-            errorMessage = String(rawMsg)
-            lowerErrorText = errorMessage.toLowerCase()
-          }
-        } catch (_parseError) {
-          // ignore parse errors
-        }
-
-        // Detect OpenAI rate limit bubbled from backend
-        if (lowerErrorText.includes('rate limit') || lowerErrorText.includes('429')) {
-          errorMessage = 'تم تجاوز حد الاستخدام المؤقت للخدمة. يرجى المحاولة لاحقاً.'
-        }
-        
-        // Map common statuses to friendlier messages
-        if (response.status === 401) {
-          errorMessage = 'يرجى تسجيل الدخول مرة أخرى.'
-        } else if (response.status === 502 || response.status === 503) {
-          errorMessage = 'الخادم غير متاح حالياً. حاول لاحقاً.'
-        }
-
-        throw new Error(errorMessage)
-      }
-
-      const data = await response.json()
-      console.log('API Response data:', data)
-      
-      // Update session ID
-      if (data.session_id && !sessionId) {
-        setSessionId(data.session_id)
-      }
-
-      return data.message || 'لم يتم الحصول على رد من الخادم'
-    } catch (error) {
-      console.error('Network or parsing error:', error)
-      if (error instanceof Error) {
-        throw error
-      }
-      throw new Error('حدث خطأ في الاتصال بالخادم')
-    }
-  }
+  }, [messages])
 
   const handleSend = async () => {
     if (!inputMessage.trim() || isSending) return
 
-    const messageText = inputMessage
-    const userMessage: ChatMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageText,
-      timestamp: new Date()
+      content: inputMessage.trim()
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -164,26 +63,38 @@ export default function SkySalesPage() {
     setIsSending(true)
 
     try {
-      // Call AI API
-      const responseText = await sendMessageToAPI(messageText)
+      const token = getToken()
+      const response = await fetch('/api/skyrep/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          messages: [...messages, userMessage]
+        })
+      })
 
-      const assistantMessage: ChatMessage = {
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      const data = await response.json()
+      
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responseText,
-        timestamp: new Date()
+        content: data.response
       }
 
       setMessages(prev => [...prev, assistantMessage])
     } catch (error) {
       console.error('Error sending message:', error)
-      
-      // Show error message
-      const errorMessage: ChatMessage = {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'عذراً، حدث خطأ في الاتصال. الرجاء المحاولة مرة أخرى.',
-        timestamp: new Date()
+        content: 'عذراً، حدث خطأ في إرسال الرسالة. الرجاء المحاولة مرة أخرى.'
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
@@ -191,7 +102,7 @@ export default function SkySalesPage() {
     }
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -201,215 +112,137 @@ export default function SkySalesPage() {
   const handleRecord = async () => {
     if (isRecording) {
       // Stop recording
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop()
+      }
       setIsRecording(false)
-      setIsSending(true)
+      return
+    }
 
-      try {
-        if (!audioRecorderRef.current) {
-          throw new Error('Audio recorder not initialized')
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          setAudioChunks(prev => [...prev, event.data])
         }
-
-        // Get recorded audio
-        const audioBlob = await audioRecorderRef.current.stop()
-        
-        // Convert to base64
-        const audioBase64 = await blobToBase64(audioBlob)
-
-        // Send to Voice API
-        const token = getToken()
-        if (!token) {
-          throw new Error('No authentication token')
-        }
-
-        console.log('Sending voice to API:', { 
-          endpoint: AI_AGENT_ENDPOINTS.VOICE,
-          audioSize: audioBase64.length,
-          token: token.substring(0, 10) + '...' 
-        })
-
-        const response = await fetch(AI_AGENT_ENDPOINTS.VOICE, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Token ${token}`
-          },
-          body: JSON.stringify({
-            audio_base64: audioBase64
-          })
-        })
-
-        console.log('Voice API Response status:', response.status, response.statusText)
-
-        if (!response.ok) {
-          const errorText = await response.text()
-          console.error('Voice API Error Details:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-          })
-          
-          let errorMessage = 'فشل معالجة الصوت'
-          try {
-            const errorData = JSON.parse(errorText)
-            if (errorData.message) {
-              errorMessage = errorData.message
-            }
-          } catch (parseError) {
-            console.warn('Could not parse voice error response:', parseError)
-          }
-          
-          throw new Error(errorMessage)
-        }
-
-        const data = await response.json()
-
-        // Update session ID
-        if (data.session_id && !sessionId) {
-          setSessionId(data.session_id)
-        }
-
-        // Add user message (transcription)
-        const userMessage: ChatMessage = {
-          id: Date.now().toString(),
-          role: 'user',
-          content: data.transcription,
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, userMessage])
-
-        // Add assistant response
-        const assistantMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: data.text,
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, assistantMessage])
-
-        // Play audio response
-        try {
-          await playAudioBase64(data.audio_base64)
-        } catch (audioError) {
-          console.error('Error playing audio:', audioError)
-        }
-
-      } catch (error) {
-        console.error('Error processing voice:', error)
-        
-        const errorMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: 'عذراً، حدث خطأ في معالجة الصوت. الرجاء المحاولة مرة أخرى.',
-          timestamp: new Date()
-        }
-        setMessages(prev => [...prev, errorMessage])
-      } finally {
-        setIsSending(false)
       }
-    } else {
-      // Start recording
-      try {
-        audioRecorderRef.current = new AudioRecorder()
-        await audioRecorderRef.current.start()
-        setIsRecording(true)
-      } catch (error) {
-        console.error('Error starting recording:', error)
-        alert('عذراً، لا يمكن الوصول للميكروفون. الرجاء السماح بالوصول للميكروفون.')
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' })
+        setAudioChunks([])
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop())
+        
+        // Send audio to server
+        await sendAudioToServer(audioBlob)
       }
+
+      setMediaRecorder(recorder)
+      setAudioChunks([])
+      recorder.start()
+      setIsRecording(true)
+    } catch (error) {
+      console.error('Error accessing microphone:', error)
+      alert('عذراً، لا يمكن الوصول إلى الميكروفون. الرجاء التحقق من الإذن.')
+    }
+  }
+
+  const sendAudioToServer = async (audioBlob: Blob) => {
+    try {
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'recording.wav')
+      
+      const token = getToken()
+      const response = await fetch('/api/skyrep/voice', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to process audio')
+      }
+
+      const data = await response.json()
+      
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: data.response
+      }
+
+      setMessages(prev => [...prev, assistantMessage])
+    } catch (error) {
+      console.error('Error processing audio:', error)
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'عذراً، حدث خطأ في معالجة الصوت. الرجاء المحاولة مرة أخرى.'
+      }
+      setMessages(prev => [...prev, errorMessage])
     }
   }
 
   const handleVoiceCall = async () => {
     if (isInCall) {
-      // Stop call
-      if (callRecorderRef.current) {
-        callRecorderRef.current.stop()
-        callRecorderRef.current = null
+      // End call
+      if (callInterval) {
+        clearInterval(callInterval)
+        setCallInterval(null)
       }
       setIsInCall(false)
-    } else {
-      // Start call
-      try {
-        const token = getToken()
-        if (!token) {
-          alert('يجب تسجيل الدخول أولاً')
-          return
+      return
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      
+      // Start continuous recording and sending
+      const startCall = () => {
+        const recorder = new MediaRecorder(stream)
+        const chunks: Blob[] = []
+        
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data)
+          }
         }
 
-        callRecorderRef.current = new ChunkedAudioRecorder()
-        
-        await callRecorderRef.current.start(async (audioChunk) => {
-          try {
-            // Convert chunk to base64
-            const chunkBase64 = await blobToBase64(audioChunk)
-
-            // Send to Call API
-            console.log('Sending call chunk to API:', { 
-              endpoint: AI_AGENT_ENDPOINTS.CALL,
-              chunkSize: chunkBase64.length,
-              token: token.substring(0, 10) + '...' 
-            })
-
-            const response = await fetch(AI_AGENT_ENDPOINTS.CALL, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Token ${token}`
-              },
-              body: JSON.stringify({
-                audio_chunk_base64: chunkBase64
-              })
-            })
-
-            console.log('Call API Response status:', response.status, response.statusText)
-
-            if (!response.ok) {
-              const errorText = await response.text()
-              console.error('Call API Error Details:', {
-                status: response.status,
-                statusText: response.statusText,
-                body: errorText
-              })
-              return
-            }
-
-            const data = await response.json()
-
-            // Update session ID
-            if (data.session_id && !sessionId) {
-              setSessionId(data.session_id)
-            }
-
-            // If we got a response
-            if (data.text_response && data.text_response.trim()) {
-              // Add messages to chat
-              const assistantMessage: ChatMessage = {
-                id: Date.now().toString(),
-                role: 'assistant',
-                content: data.text_response,
-                timestamp: new Date()
-              }
-              setMessages(prev => [...prev, assistantMessage])
-
-              // Play audio response
-              if (data.audio_response_base64) {
-                try {
-                  await playAudioBase64(data.audio_response_base64)
-                } catch (audioError) {
-                  console.error('Error playing call audio:', audioError)
-                }
-              }
-            }
-          } catch (error) {
-            console.error('Error processing call chunk:', error)
+        recorder.onstop = async () => {
+          if (chunks.length > 0) {
+            const audioBlob = new Blob(chunks, { type: 'audio/wav' })
+            await sendAudioToServer(audioBlob)
           }
-        }, 2000) // Send chunks every 2 seconds
+        }
 
-        setIsInCall(true)
-      } catch (error) {
-        console.error('Error starting call:', error)
-        alert('عذراً، لا يمكن بدء المكالمة. الرجاء التحقق من إذن الميكروفون.')
+        recorder.start()
+        
+        // Stop and send every 2 seconds
+        setTimeout(() => {
+          if (recorder.state === 'recording') {
+            recorder.stop()
+          }
+        }, 2000)
       }
+
+      // Start the call process
+      const interval = setInterval(async () => {
+        try {
+          startCall()
+        } catch (error) {
+          console.error('Error processing call chunk:', error)
+        }
+      }, 2000) // Send chunks every 2 seconds
+
+      setIsInCall(true)
+    } catch (error) {
+      console.error('Error starting call:', error)
+      alert('عذراً، لا يمكن بدء المكالمة. الرجاء التحقق من إذن الميكروفون.')
     }
   }
 
@@ -459,46 +292,48 @@ export default function SkySalesPage() {
                     disabled={isSending}
                     style={{ maxHeight: '200px', minHeight: '52px' }}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
                     {!inputMessage.trim() && (
                       <>
+                        {/* Voice Call Button - ChatGPT Style */}
                         <button
                           onClick={handleVoiceCall}
                           disabled={isSending || isRecording}
-                          className={`p-2 rounded-lg transition-all ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                             isInCall
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                           title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
                         >
                           {isInCall ? (
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                               <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
                             </svg>
                           ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                           )}
                         </button>
                         
+                        {/* Record Button - ChatGPT Style */}
                         <button
                           onClick={handleRecord}
-                          className={`p-2 rounded-lg transition-all ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                             isRecording 
-                              ? 'bg-red-500 hover:bg-red-600 text-white' 
-                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
                           }`}
                           title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                         >
                           {isRecording ? (
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <rect x="6" y="6" width="12" height="12" rx="2" />
                             </svg>
                           ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
                           )}
@@ -604,46 +439,48 @@ export default function SkySalesPage() {
                     disabled={isSending}
                     style={{ maxHeight: '200px', minHeight: '52px' }}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
                     {!inputMessage.trim() && (
                       <>
+                        {/* Voice Call Button - ChatGPT Style */}
                         <button
                           onClick={handleVoiceCall}
                           disabled={isSending || isRecording}
-                          className={`p-2 rounded-lg transition-all ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                             isInCall
                               ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
                           } disabled:opacity-50 disabled:cursor-not-allowed`}
                           title={isInCall ? 'إنهاء المكالمة' : 'مكالمة صوتية'}
                         >
                           {isInCall ? (
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                               <line x1="18" y1="6" x2="6" y2="18" stroke="white" strokeWidth="2"/>
                             </svg>
                           ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                           )}
                         </button>
                         
+                        {/* Record Button - ChatGPT Style */}
                         <button
                           onClick={handleRecord}
-                          className={`p-2 rounded-lg transition-all ${
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                             isRecording 
-                              ? 'bg-red-500 hover:bg-red-600 text-white' 
-                              : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300'
                           }`}
                           title={isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي'}
                         >
                           {isRecording ? (
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                               <rect x="6" y="6" width="12" height="12" rx="2" />
                             </svg>
                           ) : (
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
                           )}
