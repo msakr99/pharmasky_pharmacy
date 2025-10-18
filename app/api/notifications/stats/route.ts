@@ -1,32 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const API_BASE = 'http://167.71.40.9'
+const API_BASE = 'http://129.212.140.152'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.headers.get('authorization')?.replace('Bearer ', '')
+    const authHeader = request.headers.get('authorization')
     
-    if (!token) {
+    if (!authHeader) {
+      console.error('No authorization token provided')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // تحويل Bearer إلى Token
+    const token = authHeader.startsWith('Bearer ') 
+      ? authHeader.replace('Bearer ', 'Token ') 
+      : authHeader
+
+    console.log('Fetching notification stats with token:', token.substring(0, 20) + '...')
+
     const response = await fetch(`${API_BASE}/notifications/notifications/stats/`, {
       headers: {
-        'Authorization': `Token ${token}`,
+        'Authorization': token,
         'Content-Type': 'application/json'
       }
     })
 
+    console.log('External API response status:', response.status)
+
     if (!response.ok) {
-      throw new Error(`API responded with status: ${response.status}`)
+      const errorText = await response.text()
+      console.error('External API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      })
+      
+      return NextResponse.json(
+        { 
+          error: 'Failed to fetch notification stats',
+          details: errorText,
+          status: response.status
+        },
+        { status: response.status }
+      )
     }
 
     const data = await response.json()
+    console.log('Notification stats data received:', data)
     return NextResponse.json(data)
   } catch (error) {
     console.error('Error fetching notification stats:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch notification stats' },
+      { 
+        error: 'Failed to fetch notification stats',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

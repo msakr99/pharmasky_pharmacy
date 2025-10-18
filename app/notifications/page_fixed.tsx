@@ -28,16 +28,11 @@ export default function NotificationsPage() {
       setLoading(true);
       const authToken = localStorage.getItem('authToken');
       
-      if (!authToken) {
-        console.error('No auth token found');
-        return;
-      }
-      
-      let url = '/api/notifications';
+      let url = 'http://129.212.140.152/notifications/notifications/';
       if (filter === 'unread') {
-        url = '/api/notifications/unread';
+        url = 'http://129.212.140.152/notifications/notifications/unread/';
       } else if (filter === 'read') {
-        url = '/api/notifications?is_read=true';
+        url = 'http://129.212.140.152/notifications/notifications/?is_read=true';
       }
       
       const response = await fetch(url, {
@@ -45,10 +40,6 @@ export default function NotificationsPage() {
           'Authorization': `Token ${authToken}`,
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       
       const data = await response.json();
       setNotifications(data.results || []);
@@ -63,21 +54,11 @@ export default function NotificationsPage() {
   const fetchStats = async () => {
     try {
       const authToken = localStorage.getItem('authToken');
-      
-      if (!authToken) {
-        console.error('No auth token found for stats');
-        return;
-      }
-      
-      const response = await fetch('/api/notifications/stats', {
+      const response = await fetch('http://129.212.140.152/notifications/notifications/stats/', {
         headers: {
           'Authorization': `Token ${authToken}`,
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       
       const data = await response.json();
       setStats(data);
@@ -90,13 +71,7 @@ export default function NotificationsPage() {
   const markAsRead = async (id: number) => {
     try {
       const authToken = localStorage.getItem('authToken');
-      
-      if (!authToken) {
-        console.error('No auth token found for markAsRead');
-        return;
-      }
-      
-      const response = await fetch(`/api/notifications/${id}/update`, {
+      await fetch(`http://129.212.140.152/notifications/notifications/${id}/update/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Token ${authToken}`,
@@ -104,10 +79,6 @@ export default function NotificationsPage() {
         },
         body: JSON.stringify({ is_read: true }),
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       
       setNotifications(notifications.map(n => 
         n.id === id ? { ...n, is_read: true } : n
@@ -122,22 +93,12 @@ export default function NotificationsPage() {
   const deleteNotification = async (id: number) => {
     try {
       const authToken = localStorage.getItem('authToken');
-      
-      if (!authToken) {
-        console.error('No auth token found for deleteNotification');
-        return;
-      }
-      
-      const response = await fetch(`/api/notifications/${id}/delete`, {
+      await fetch(`http://129.212.140.152/notifications/notifications/${id}/delete/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Token ${authToken}`,
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       
       setNotifications(notifications.filter(n => n.id !== id));
       fetchStats();
@@ -150,22 +111,12 @@ export default function NotificationsPage() {
   const markAllAsRead = async () => {
     try {
       const authToken = localStorage.getItem('authToken');
-      
-      if (!authToken) {
-        console.error('No auth token found for markAllAsRead');
-        return;
-      }
-      
-      const response = await fetch('/api/notifications/mark-all-read', {
+      await fetch('http://129.212.140.152/notifications/notifications/mark-all-read/', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${authToken}`,
         }
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       
       setNotifications(notifications.map(n => ({ ...n, is_read: true })));
       fetchStats();

@@ -10,6 +10,7 @@ interface UserProfile {
   user: {
     id: number
     name: string
+    e_name: string
     username: string
     role: string
     role_label: string
@@ -31,13 +32,20 @@ interface UserProfile {
   } | null
   category: string
   category_label: string
+  license: string | null
   address: string
+  remarks: string
   latest_invoice_date: string | null
   payment_period: {
     id: number
     name: string
     period_in_days: number
+    addition_percentage: string
+    reminder_days_before: number
   } | null
+  profit_percentage: string
+  order_by_phone: boolean
+  company: boolean
   key_person: string
   key_person_phone: string
   area_manager?: string
@@ -75,6 +83,53 @@ export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [accountSummary, setAccountSummary] = useState<AccountSummary | null>(null)
   const [loadingFinancial, setLoadingFinancial] = useState(false)
+  const [isOffline, setIsOffline] = useState(false)
+
+  // Demo data for offline mode
+  const demoUserProfile: UserProfile = {
+    id: 2,
+    user: {
+      id: 5,
+      name: "الشفاء",
+      e_name: "",
+      username: "+201090552414",
+      role: "PHARMACY",
+      role_label: "Pharmacy",
+      account: {
+        id: 1,
+        balance: "-3974.45",
+        credit_limit: "100000.00",
+        remaining_credit: "96025.55",
+        transactions_url: "http://129.212.140.152/finance/account-transactions/?account=1"
+      }
+    },
+    city: {
+      id: 1,
+      name: "شبين الكوم",
+      country: {
+        id: 1,
+        name: "شبين الكوم"
+      }
+    },
+    category: "none",
+    category_label: "Unassigned",
+    license: null,
+    address: "",
+    remarks: "",
+    latest_invoice_date: "2025-10-13T20:43:48.011083Z",
+    payment_period: {
+      id: 2,
+      name: "orange",
+      period_in_days: 30,
+      addition_percentage: "3.00",
+      reminder_days_before: 3
+    },
+    profit_percentage: "1.50",
+    order_by_phone: false,
+    company: false,
+    key_person: "",
+    key_person_phone: ""
+  }
 
   useEffect(() => {
     const token = getToken()
@@ -86,30 +141,150 @@ export default function DashboardPage() {
     }
 
     setUsername(user)
+    
+    // Validate token before making request
+    if (!token || token.trim() === '') {
+      console.error('Invalid or empty token')
+      alert('خطأ في التوكن. يرجى تسجيل الدخول مرة أخرى.')
+      router.replace('/login')
+      return
+    }
+    
     fetchUserProfile(token)
   }, [router])
 
-  const fetchUserProfile = async (token: string) => {
+  const fetchUserProfile = async (token: string, retryCount = 0) => {
+    const maxRetries = 2
+    
+    // Validate token
+    if (!token || token.trim() === '') {
+      console.error('Invalid or empty token in fetchUserProfile')
+      alert('خطأ في التوكن. يرجى تسجيل الدخول مرة أخرى.')
+      router.replace('/login')
+      return
+    }
+    
     try {
       setLoading(true)
       
       const response = await fetch('/api/profiles/user-profile', {
         headers: {
-          'Authorization': `Token ${token}`
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
         }
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response ok:', response.ok)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
       if (response.ok) {
-        const data = await response.json()
-        setUserProfile(data)
-        
-        // Fetch account summary
-        fetchAccountSummary(token)
+        try {
+          const data = await response.json()
+          console.log('Frontend received data:', data)
+          console.log('Data keys:', Object.keys(data))
+          console.log('Data type:', typeof data)
+          
+          // Check if data is empty or invalid
+          if (!data || Object.keys(data).length === 0) {
+            console.error('Empty or invalid response data:', data)
+            alert('تم استلام استجابة فارغة من الخادم. يرجى المحاولة مرة أخرى.')
+            return
+          }
+          
+          setUserProfile(data)
+          
+          // Fetch account summary
+          fetchAccountSummary(token)
+        } catch (jsonError) {
+          console.error('JSON parsing error:', jsonError)
+          const responseText = await response.text()
+          console.error('Raw response text:', responseText)
+          alert('خطأ في تحليل استجابة الخادم. يرجى المحاولة مرة أخرى.')
+        }
       } else {
-        console.error('Failed to fetch user profile')
+        const errorData = await response.text()
+        console.error('Failed to fetch user profile:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          retryCount
+        })
+        
+        // Handle specific error cases
+        if (response.status === 503) {
+          // Server unavailable - use offline mode
+          setIsOffline(true)
+          setUserProfile(demoUserProfile)
+          alert('الخادم غير متاح حالياً. يتم عرض البيانات التجريبية.')
+        } else if (response.status === 504) {
+          // Timeout - retry once
+          if (retryCount < maxRetries) {
+            console.log(`Retrying fetchUserProfile (attempt ${retryCount + 1}/${maxRetries})`)
+            setTimeout(() => fetchUserProfile(token, retryCount + 1), 1000 * (retryCount + 1))
+            return
+          } else {
+            setIsOffline(true)
+            setUserProfile(demoUserProfile)
+            alert('انتهت مهلة الاتصال بالخادم. يتم عرض البيانات التجريبية.')
+          }
+        } else if (response.status >= 500) {
+          // Other server errors - retry once
+          if (retryCount < maxRetries) {
+            console.log(`Retrying fetchUserProfile (attempt ${retryCount + 1}/${maxRetries})`)
+            setTimeout(() => fetchUserProfile(token, retryCount + 1), 1000 * (retryCount + 1))
+            return
+          } else {
+            setIsOffline(true)
+            setUserProfile(demoUserProfile)
+            alert('خطأ في الخادم. يتم عرض البيانات التجريبية.')
+          }
+        } else if (response.status === 401) {
+          // Unauthorized - token issue
+          alert('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.')
+          router.replace('/login')
+        } else if (response.status === 403) {
+          // Forbidden
+          alert('ليس لديك صلاحية للوصول إلى هذه البيانات.')
+        } else if (response.status === 422) {
+          // Invalid response structure
+          setIsOffline(true)
+          setUserProfile(demoUserProfile)
+          alert('خطأ في هيكل البيانات. يتم عرض البيانات التجريبية.')
+        } else {
+          // Other client errors (4xx) - don't retry
+          alert(`خطأ في تحميل بيانات المستخدم: ${response.status} - ${response.statusText}`)
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error)
+      
+      // Handle network errors
+      if (error instanceof Error && error.message.includes('ECONNREFUSED')) {
+        setIsOffline(true)
+        setUserProfile(demoUserProfile)
+        alert('الخادم غير متاح. يتم عرض البيانات التجريبية.')
+      } else if (error instanceof Error && error.message.includes('ENOTFOUND')) {
+        setIsOffline(true)
+        setUserProfile(demoUserProfile)
+        alert('لا يمكن الوصول للخادم. يتم عرض البيانات التجريبية.')
+      } else if (error instanceof TypeError && error.message.includes('fetch')) {
+        // Network fetch error - retry once
+        if (retryCount < maxRetries) {
+          console.log(`Retrying fetchUserProfile due to network error (attempt ${retryCount + 1}/${maxRetries})`)
+          setTimeout(() => fetchUserProfile(token, retryCount + 1), 1000 * (retryCount + 1))
+          return
+        } else {
+          setIsOffline(true)
+          setUserProfile(demoUserProfile)
+          alert('خطأ في الاتصال بالخادم. يتم عرض البيانات التجريبية.')
+        }
+      } else {
+        // Unknown error
+        setIsOffline(true)
+        setUserProfile(demoUserProfile)
+        alert(`خطأ غير متوقع. يتم عرض البيانات التجريبية: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -153,6 +328,7 @@ export default function DashboardPage() {
     }
     return phone
   }
+
 
   if (loading) {
     return (
@@ -209,6 +385,34 @@ export default function DashboardPage() {
       <NavBar />
       
       <div className="p-3 sm:p-4 lg:p-6 max-w-7xl mx-auto">
+        {/* Offline Mode Indicator */}
+        {isOffline && (
+          <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-orange-800 dark:text-orange-200">وضع عدم الاتصال</h3>
+                <div className="mt-2 text-sm text-orange-700 dark:text-orange-300">
+                  <p>الخادم غير متاح حالياً. يتم عرض البيانات التجريبية.</p>
+                  <button
+                    onClick={() => {
+                      setIsOffline(false)
+                      fetchUserProfile(getToken() || '')
+                    }}
+                    className="mt-2 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs rounded transition-colors"
+                  >
+                    إعادة المحاولة
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Pharmacy Information Card */}
         <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
@@ -265,13 +469,14 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-lg">
-              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">مسؤول التحصيل</label>
+              <label className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">نسبة الربح</label>
               <div className="mt-1 text-sm sm:text-base font-semibold text-blue-600 dark:text-blue-400">
-                {userProfile.area_manager || 'غير محدد'}
+                {userProfile.profit_percentage ? `${userProfile.profit_percentage}%` : 'غير محدد'}
               </div>
             </div>
           </div>
         </div>
+
 
         {/* Quick Actions */}
         <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
@@ -401,6 +606,11 @@ export default function DashboardPage() {
                     ? `${userProfile.payment_period.name} (${userProfile.payment_period.period_in_days} يوم)`
                     : 'غير محدد'}
                 </p>
+                {userProfile.payment_period && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    نسبة إضافية: {userProfile.payment_period.addition_percentage}%
+                  </p>
+                )}
               </div>
             </div>
           </div>
