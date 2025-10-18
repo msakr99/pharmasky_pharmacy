@@ -1,509 +1,125 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  /* Base Colors */
-  --background: #ffffff;
-  --foreground: #1E2A3A;
-  
-  /* Primary Colors - Healthcare Professional */
-  --primary-dark-blue: #1E2A3A;
-  --primary-white: #FFFFFF;
-  --primary-orange: #FF6B35;
-  --primary-orange-hover: #E55A2B;
-  --primary-orange-light: #FFE8E0;
-  
-  /* Secondary Colors - Neutral System */
-  --light-gray: #F8F9FA;
-  --medium-gray: #E8ECEF;
-  --soft-blue: #4A90E2;
-  --soft-blue-hover: #3A7BC8;
-  --soft-blue-light: #E8F2FC;
-  
-  /* Status Colors - Clear Communication */
-  --success-green: #27AE60;
-  --success-green-hover: #1E8E4F;
-  --success-green-light: #D5F5E3;
-  
-  --warning-red: #E74C3C;
-  --warning-red-hover: #C0392B;
-  --warning-red-light: #FADBD8;
-  
-  --warning-yellow: #F39C12;
-  --warning-yellow-hover: #D68910;
-  --warning-yellow-light: #FCF3CF;
-  
-  --pending-blue: #3498DB;
-  --pending-blue-hover: #2C7AB8;
-  --pending-blue-light: #D6EAF8;
-  
-  /* Chart Colors - Data Visualization */
-  --chart-1: #FF6B35;
-  --chart-2: #4A90E2;
-  --chart-3: #27AE60;
-  --chart-4: #9B59B6;
-  --chart-5: #F39C12;
-  --chart-6: #E74C3C;
-  
-  /* Text Colors */
-  --text-primary: #1E2A3A;
-  --text-secondary: #5A6C7D;
-  --text-muted: #95A3B3;
-  --text-on-primary: #FFFFFF;
-  --text-on-orange: #FFFFFF;
-  
-  /* Border & Divider */
-  --border-light: #E8ECEF;
-  --border-medium: #D1D8DD;
-  --border-dark: #B8C2CC;
-  
-  /* Shadows - Healthcare Depth */
-  --shadow-xs: 0 1px 2px 0 rgba(30, 42, 58, 0.03);
-  --shadow-sm: 0 2px 4px 0 rgba(30, 42, 58, 0.05);
-  --shadow-md: 0 4px 8px -2px rgba(30, 42, 58, 0.1);
-  --shadow-lg: 0 12px 24px -4px rgba(30, 42, 58, 0.15);
-  --shadow-xl: 0 20px 40px -8px rgba(30, 42, 58, 0.2);
-  
-  /* Card & Container */
-  --card-bg: #FFFFFF;
-  --card-hover: #FAFBFC;
-  --section-bg: #F5F7FA;
-  
-  /* Interactive States */
-  --hover-overlay: rgba(30, 42, 58, 0.04);
-  --active-overlay: rgba(30, 42, 58, 0.08);
-  --focus-ring: rgba(74, 144, 226, 0.5);
+/* إشعارات مخصصة */
+.notification-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  max-width: 24rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3b82f6;
+  padding: 1rem;
+  transform: translateX(0);
+  transition: all 0.3s ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+.notification-toast.show {
+  transform: translateX(0);
+  opacity: 1;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Base Colors - Dark Mode */
-    --background: #0F1419;
-    --foreground: #E8ECEF;
-    
-    /* Primary Colors - Dark Mode */
-    --primary-dark-blue: #2D3E50;
-    --primary-white: #1A1F2E;
-    --primary-orange: #FF7C52;
-    --primary-orange-hover: #FF6B35;
-    --primary-orange-light: #3A2417;
-    
-    /* Secondary Colors - Dark Mode */
-    --light-gray: #1A1F2E;
-    --medium-gray: #252B3A;
-    --soft-blue: #5BA3F5;
-    --soft-blue-hover: #4A90E2;
-    --soft-blue-light: #1F2D3F;
-    
-    /* Status Colors - Dark Mode */
-    --success-green: #2ECC71;
-    --success-green-hover: #27AE60;
-    --success-green-light: #1A2E23;
-    
-    --warning-red: #EC7063;
-    --warning-red-hover: #E74C3C;
-    --warning-red-light: #3A1F1C;
-    
-    --warning-yellow: #F5B041;
-    --warning-yellow-hover: #F39C12;
-    --warning-yellow-light: #3A2E1A;
-    
-    --pending-blue: #5DADE2;
-    --pending-blue-hover: #3498DB;
-    --pending-blue-light: #1A2A3A;
-    
-    /* Text Colors - Dark Mode */
-    --text-primary: #E8ECEF;
-    --text-secondary: #95A3B3;
-    --text-muted: #5A6C7D;
-    --text-on-primary: #FFFFFF;
-    --text-on-orange: #FFFFFF;
-    
-    /* Border & Divider - Dark Mode */
-    --border-light: #252B3A;
-    --border-medium: #2D3E50;
-    --border-dark: #3A4B5C;
-    
-    /* Card & Container - Dark Mode */
-    --card-bg: #1A1F2E;
-    --card-hover: #1F2533;
-    --section-bg: #151A25;
-    
-    /* Shadows - Dark Mode */
-    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.6);
-    --shadow-xl: 0 20px 40px -8px rgba(0, 0, 0, 0.7);
-    
-    /* Interactive States - Dark Mode */
-    --hover-overlay: rgba(255, 255, 255, 0.08);
-    --active-overlay: rgba(255, 255, 255, 0.12);
-    --focus-ring: rgba(90, 163, 245, 0.5);
-  }
+.notification-toast.hide {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
-body {
-  background: var(--light-gray);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* أصوات الإشعارات */
+.notification-sound {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* إعدادات الإشعارات */
+.notification-settings {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 }
 
-/* Optimized animations */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.notification-settings h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1rem;
 }
 
-/* Performance optimizations */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* أزرار الإشعارات */
+.notification-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-/* Prevent text selection on interactive elements */
-button, a {
-  -webkit-user-select: none;
-  user-select: none;
+.notification-btn.primary {
+  background-color: #3b82f6;
+  color: white;
 }
 
-/* Optimize images */
-img {
-  content-visibility: auto;
+.notification-btn.primary:hover {
+  background-color: #2563eb;
 }
 
-/* Responsive Container Queries */
-@container (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+.notification-btn.secondary {
+  background-color: #e5e7eb;
+  color: #374151;
 }
 
-/* Responsive Typography */
-@media (max-width: 640px) {
-  h1 {
-    font-size: 1.5rem;
+.notification-btn.secondary:hover {
+  background-color: #d1d5db;
+}
+
+/* أيقونات الإشعارات */
+.notification-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.notification-icon.small {
+  width: 1rem;
+  height: 1rem;
+}
+
+.notification-icon.large {
+  width: 2rem;
+  height: 2rem;
+}
+
+/* رسائل الإشعارات */
+.notification-message {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.notification-title {
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+/* تحسينات للهواتف */
+@media (max-width: 768px) {
+  .notification-toast {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    max-width: none;
   }
   
-  h2 {
-    font-size: 1.25rem;
+  .notification-settings {
+    padding: 1rem;
   }
   
-  h3 {
+  .notification-settings h2 {
     font-size: 1.125rem;
   }
 }
-
-/* Touch-friendly targets on mobile */
-@media (max-width: 768px) {
-  button,
-  a,
-  input,
-  select,
-  textarea {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* Optimize table scrolling on mobile */
-@media (max-width: 768px) {
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-  }
-}
-
-/* Better focus states */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* Smooth transitions for theme changes */
-body,
-.bg-white,
-.dark\:bg-gray-800,
-.text-gray-900,
-.dark\:text-white {
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-
-/* Loading skeleton animation */
-@keyframes shimmer {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
-  }
-}
-
-.skeleton {
-  animation: shimmer 1.2s ease-in-out infinite;
-  background: linear-gradient(to right, #f0f0f0 8%, #e0e0e0 18%, #f0f0f0 33%);
-  background-size: 800px 104px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .skeleton {
-    background: linear-gradient(to right, #1a1a1a 8%, #2a2a2a 18%, #1a1a1a 33%);
-  }
-}
-
-/* Toast animations */
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -100%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    max-height: 1000px;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes progress {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
-}
-
-.animate-slide-down {
-  animation: slide-down 0.3s ease-out;
-}
-
-.animate-slideDown {
-  animation: slideDown 0.3s ease-out;
-}
-
-.animate-progress {
-  animation: progress linear;
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Healthcare Color Utility Classes */
-.bg-primary-orange {
-  background-color: var(--primary-orange);
-}
-
-.bg-primary-orange:hover {
-  background-color: var(--primary-orange-hover);
-}
-
-.bg-soft-blue {
-  background-color: var(--soft-blue);
-}
-
-.bg-success-green {
-  background-color: var(--success-green);
-}
-
-.bg-warning-red {
-  background-color: var(--warning-red);
-}
-
-.bg-warning-yellow {
-  background-color: var(--warning-yellow);
-}
-
-.bg-pending-blue {
-  background-color: var(--pending-blue);
-}
-
-.text-primary-orange {
-  color: var(--primary-orange);
-}
-
-.text-soft-blue {
-  color: var(--soft-blue);
-}
-
-.text-success-green {
-  color: var(--success-green);
-}
-
-.text-warning-red {
-  color: var(--warning-red);
-}
-
-.text-warning-yellow {
-  color: var(--warning-yellow);
-}
-
-.border-primary-orange {
-  border-color: var(--primary-orange);
-}
-
-.border-medium-gray {
-  border-color: var(--medium-gray);
-}
-
-/* Card Styles */
-.healthcare-card {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
-}
-
-.healthcare-card:hover {
-  background-color: var(--card-hover);
-  box-shadow: var(--shadow-md);
-}
-
-/* Button Styles */
-.btn-primary {
-  background-color: var(--primary-orange);
-  color: var(--text-on-orange);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-orange-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.btn-secondary {
-  background-color: var(--soft-blue);
-  color: var(--text-on-primary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-secondary:hover {
-  background-color: var(--soft-blue-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.btn-success {
-  background-color: var(--success-green);
-  color: var(--text-on-primary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-success:hover {
-  background-color: var(--success-green-hover);
-}
-
-.btn-danger {
-  background-color: var(--warning-red);
-  color: var(--text-on-primary);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.btn-danger:hover {
-  background-color: var(--warning-red-hover);
-}
-
-/* Status Badge Styles */
-.status-success {
-  background-color: var(--success-green-light);
-  color: var(--success-green);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid var(--success-green);
-}
-
-.status-warning {
-  background-color: var(--warning-yellow-light);
-  color: var(--warning-yellow);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid var(--warning-yellow);
-}
-
-.status-danger {
-  background-color: var(--warning-red-light);
-  color: var(--warning-red);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid var(--warning-red);
-}
-
-.status-pending {
-  background-color: var(--pending-blue-light);
-  color: var(--pending-blue);
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: 1px solid var(--pending-blue);
-}
-
-/* Print styles */
-@media print {
-  nav,
-  button:not(.print-show),
-  .no-print {
-    display: none !important;
-  }
-}
-
