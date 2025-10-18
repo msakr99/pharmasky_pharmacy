@@ -26,7 +26,7 @@ export default function NotificationsPage() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('pharmacy_auth_token');
       
       if (!authToken) {
         console.error('No auth token found');
@@ -62,7 +62,7 @@ export default function NotificationsPage() {
   // جلب الإحصائيات
   const fetchStats = async () => {
     try {
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('pharmacy_auth_token');
       
       if (!authToken) {
         console.error('No auth token found for stats');
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
   // تحديد كمقروء
   const markAsRead = async (id: number) => {
     try {
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('pharmacy_auth_token');
       
       if (!authToken) {
         console.error('No auth token found for markAsRead');
@@ -121,7 +121,7 @@ export default function NotificationsPage() {
   // حذف الإشعار
   const deleteNotification = async (id: number) => {
     try {
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('pharmacy_auth_token');
       
       if (!authToken) {
         console.error('No auth token found for deleteNotification');
@@ -149,7 +149,7 @@ export default function NotificationsPage() {
   // تحديد الكل كمقروء
   const markAllAsRead = async () => {
     try {
-      const authToken = localStorage.getItem('authToken');
+      const authToken = localStorage.getItem('pharmacy_auth_token');
       
       if (!authToken) {
         console.error('No auth token found for markAllAsRead');
