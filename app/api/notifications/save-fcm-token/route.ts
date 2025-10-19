@@ -19,15 +19,56 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('Saving FCM token with data:', body)
 
-    const response = await fetch(`${API_BASE}/api/notifications/save-fcm-token/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    })
+    // جرب عدة مسارات محتملة
+    const possibleEndpoints = [
+      `${API_BASE}/notifications/fcm-tokens/`,
+      `${API_BASE}/notifications/device-tokens/`,
+      `${API_BASE}/notifications/save-fcm-token/`,
+      `${API_BASE}/api/notifications/fcm-tokens/`,
+      `${API_BASE}/api/notifications/device-tokens/`,
+      `${API_BASE}/api/notifications/save-fcm-token/`
+    ]
 
+    let response = null
+    let workingEndpoint = null
+
+    for (const endpoint of possibleEndpoints) {
+      console.log(`Trying endpoint: ${endpoint}`)
+      try {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        })
+
+        console.log(`Endpoint ${endpoint} responded with status: ${response.status}`)
+
+        if (response.status !== 404) {
+          workingEndpoint = endpoint
+          break
+        }
+      } catch (error) {
+        console.log(`Endpoint ${endpoint} failed:`, error)
+        continue
+      }
+    }
+
+    if (!response || !workingEndpoint) {
+      console.error('All endpoints failed, using fallback endpoint')
+      response = await fetch(`${API_BASE}/notifications/fcm-tokens/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+    }
+
+    console.log(`Using working endpoint: ${workingEndpoint}`)
     console.log('External API response status:', response.status)
 
     if (!response.ok) {
