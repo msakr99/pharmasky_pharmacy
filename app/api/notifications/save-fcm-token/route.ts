@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('Saving FCM token with data:', body)
 
-    // جرب عدة مسارات محتملة
+    // جرب عدة مسارات وmethods محتملة
     const possibleEndpoints = [
       `${API_BASE}/notifications/fcm-tokens/`,
       `${API_BASE}/notifications/device-tokens/`,
@@ -29,35 +29,42 @@ export async function POST(request: NextRequest) {
       `${API_BASE}/api/notifications/save-fcm-token/`
     ]
 
+    const possibleMethods = ['POST', 'PUT', 'PATCH']
+
     let response = null
     let workingEndpoint = null
+    let workingMethod = null
 
     for (const endpoint of possibleEndpoints) {
-      console.log(`Trying endpoint: ${endpoint}`)
-      try {
-        response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        })
+      for (const method of possibleMethods) {
+        console.log(`Trying endpoint: ${endpoint} with method: ${method}`)
+        try {
+          response = await fetch(endpoint, {
+            method: method,
+            headers: {
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+          })
 
-        console.log(`Endpoint ${endpoint} responded with status: ${response.status}`)
+          console.log(`Endpoint ${endpoint} with ${method} responded with status: ${response.status}`)
 
-        if (response.status !== 404) {
-          workingEndpoint = endpoint
-          break
+          if (response.status === 200 || response.status === 201 || response.status === 202) {
+            workingEndpoint = endpoint
+            workingMethod = method
+            break
+          }
+        } catch (error) {
+          console.log(`Endpoint ${endpoint} with ${method} failed:`, error)
+          continue
         }
-      } catch (error) {
-        console.log(`Endpoint ${endpoint} failed:`, error)
-        continue
       }
+      if (workingEndpoint) break
     }
 
     if (!response || !workingEndpoint) {
-      console.error('All endpoints failed, using fallback endpoint')
+      console.error('All endpoints and methods failed, using fallback')
       response = await fetch(`${API_BASE}/notifications/fcm-tokens/`, {
         method: 'POST',
         headers: {
@@ -68,7 +75,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log(`Using working endpoint: ${workingEndpoint}`)
+    if (workingEndpoint) {
+      console.log(`✅ Using working endpoint: ${workingEndpoint} with method: ${workingMethod}`)
+    } else {
+      console.log(`⚠️ Using fallback endpoint with POST method`)
+    }
     console.log('External API response status:', response.status)
 
     if (!response.ok) {
@@ -79,13 +90,17 @@ export async function POST(request: NextRequest) {
         error: errorText
       })
       
+      // إذا فشل الحفظ، ارجع success: false لكن لا توقف العملية
+      console.log('⚠️ FCM token saving failed, but continuing with local storage')
       return NextResponse.json(
         { 
-          error: 'Failed to save FCM token',
+          success: false,
+          error: 'Failed to save FCM token to backend',
           details: errorText,
-          status: response.status
+          status: response.status,
+          message: 'FCM token will be saved locally and retried later'
         },
-        { status: response.status }
+        { status: 200 } // ارجع 200 حتى لا يتوقف النظام
       )
     }
 

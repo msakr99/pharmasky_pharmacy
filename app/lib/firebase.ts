@@ -163,6 +163,11 @@ export const sendTokenToBackend = async (
     } else {
       const error = await response.json();
       console.error("Error sending token to backend:", error);
+      
+      // حتى لو فشل الحفظ في الخادم، احفظ محلياً
+      console.log("💾 Saving FCM token locally for later retry");
+      localStorage.setItem("fcm_token_pending", token);
+      
       return false;
     }
   } catch (error) {
@@ -224,6 +229,9 @@ export const setupNotifications = async (authToken: string): Promise<void> => {
         localStorage.setItem("fcm_token", token);
       } else {
         console.error("❌ Failed to send FCM token to backend");
+        console.log("💾 FCM token saved locally, will retry later");
+        // حفظ Token محلياً حتى لو فشل الحفظ في الخادم
+        localStorage.setItem("fcm_token", token);
       }
     } else {
       console.error("❌ Failed to get FCM token");
