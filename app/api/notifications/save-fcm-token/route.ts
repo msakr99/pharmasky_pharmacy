@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('Saving FCM token with data:', body)
 
-    const response = await fetch(`${API_BASE}/notifications/notifications/save-fcm-token/`, {
+    const response = await fetch(`${API_BASE}/api/notifications/save-fcm-token/`, {
       method: 'POST',
       headers: {
         'Authorization': token,

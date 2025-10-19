@@ -1,4 +1,4 @@
-const TOKEN_KEY = 'pharmacy_auth_token'
+const TOKEN_KEY = 'token'
 const USER_KEY = 'pharmacy_user'
 
 export const setToken = (token: string) => {

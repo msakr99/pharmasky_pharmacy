@@ -57,6 +57,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   // إعداد الإشعارات تلقائيًا إذا كان مفعلًا
   // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
+    console.log('NotificationProvider: Checking setup conditions:', {
+      autoSetup,
+      hasAuthToken: !!authToken,
+      authTokenLength: authToken?.length,
+      isSupported: notifications.isSupported,
+      isPermissionGranted: notifications.isPermissionGranted,
+      isLoading: notifications.isLoading
+    });
+
     if (
       autoSetup &&
       authToken &&
@@ -67,9 +76,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     ) {
       // تأخير بسيط لتحسين UX
       const timer = setTimeout(() => {
-        console.log('Setting up notifications with token:', authToken.substring(0, 20) + '...');
+        console.log('NotificationProvider: Setting up notifications with token:', authToken.substring(0, 20) + '...');
         notifications.setupPushNotifications(authToken);
-      }, 2000);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }

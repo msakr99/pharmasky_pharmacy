@@ -19,6 +19,7 @@ export default function NotificationLayout({ children }: NotificationLayoutProps
   useEffect(() => {
     // الحصول على authToken من localStorage
     const token = getToken();
+    console.log('NotificationLayout: Retrieved token:', token ? token.substring(0, 20) + '...' : 'null');
     if (token) {
       setAuthToken(token);
     }
@@ -27,11 +28,12 @@ export default function NotificationLayout({ children }: NotificationLayoutProps
     const checkToken = () => {
       const currentToken = getToken();
       if (currentToken && currentToken !== authToken) {
+        console.log('NotificationLayout: Token updated:', currentToken.substring(0, 20) + '...');
         setAuthToken(currentToken);
       }
     };
     
-    const interval = setInterval(checkToken, 1000);
+    const interval = setInterval(checkToken, 2000);
     return () => clearInterval(interval);
   }, [authToken]);
 

@@ -125,6 +125,7 @@ export const useNotifications = (): UseNotificationsReturn => {
       setIsLoading(true);
       setError(null);
 
+      console.log("useNotifications: Requesting notification permission with token:", authToken.substring(0, 20) + '...');
       const token = await requestNotificationPermission();
 
       if (token) {
@@ -167,6 +168,7 @@ export const useNotifications = (): UseNotificationsReturn => {
       setIsLoading(true);
       setError(null);
 
+      console.log("useNotifications: Setting up notifications with token:", authToken.substring(0, 20) + '...');
       await setupNotifications(authToken);
       setIsPermissionGranted(true);
     } catch (err) {

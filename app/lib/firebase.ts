@@ -136,6 +136,8 @@ export const sendTokenToBackend = async (
     }
 
     console.log('Sending FCM token to backend with auth token:', authToken.substring(0, 20) + '...');
+    console.log('FCM token to send:', token.substring(0, 50) + '...');
+    console.log('User ID:', userId);
 
     // إرسال الطلب إلى Django API
     const response = await fetch(
@@ -206,10 +208,13 @@ export const setupNotifications = async (authToken: string): Promise<void> => {
       return;
     }
 
+    console.log("Setting up notifications with auth token:", authToken.substring(0, 20) + '...');
+
     // 1. طلب الإذن والحصول على Token
     const token = await requestNotificationPermission();
 
     if (token) {
+      console.log("FCM token obtained:", token.substring(0, 50) + '...');
       // 2. إرسال Token إلى Backend
       const success = await sendTokenToBackend(token, authToken);
       
@@ -217,7 +222,11 @@ export const setupNotifications = async (authToken: string): Promise<void> => {
         console.log("✅ Notifications setup completed successfully");
         // حفظ Token في localStorage للمرجعية
         localStorage.setItem("fcm_token", token);
+      } else {
+        console.error("❌ Failed to send FCM token to backend");
       }
+    } else {
+      console.error("❌ Failed to get FCM token");
     }
   } catch (error) {
     console.error("Error setting up notifications:", error);
