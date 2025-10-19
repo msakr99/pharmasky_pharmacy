@@ -139,12 +139,12 @@ export const sendTokenToBackend = async (
 
     // إرسال الطلب إلى Django API
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/notifications/save-fcm-token/`,
+      `/api/notifications/save-fcm-token`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Token ${authToken}`,
         },
         body: JSON.stringify({
           fcm_token: token,

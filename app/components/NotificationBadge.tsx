@@ -31,10 +31,10 @@ export default function NotificationBadge({
       
       setError(null)
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/notifications/stats/`,
+        `/api/notifications/stats`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Token ${token}`,
             'Content-Type': 'application/json'
           }
         }
