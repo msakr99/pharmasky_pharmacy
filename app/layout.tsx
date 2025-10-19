@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import NotificationLayout from './components/NotificationLayout'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
   title: 'Pharmacy App -فارماسكاي',
@@ -29,30 +31,33 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Pharmacy App" />
       </head>
       <body className="min-h-screen bg-gray-50">
-        {children}
+        <NotificationLayout>
+          {children}
+        </NotificationLayout>
+        <Toaster position="top-center" />
         
-        {/* تهيئة الإشعارات */}
+        {/* تهيئة Service Worker */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               // تهيئة Service Worker
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js')
+                  navigator.serviceWorker.register('/firebase-messaging-sw.js')
                     .then(registration => {
-                      console.log('SW registered: ', registration);
+                      console.log('✅ Firebase SW registered: ', registration);
                     })
                     .catch(registrationError => {
-                      console.log('SW registration failed: ', registrationError);
+                      console.log('❌ Firebase SW registration failed: ', registrationError);
                     });
                 });
               }
               
               // تهيئة الإشعارات
               if ('Notification' in window) {
-                console.log('Notifications supported');
+                console.log('✅ Notifications supported');
               } else {
-                console.log('Notifications not supported');
+                console.log('❌ Notifications not supported');
               }
             `
           }}

@@ -1,0 +1,48 @@
+# nextjs-components/ENV_EXAMPLE.txt
+# ═══════════════════════════════════════════════════════════════════
+# مثال على متغيرات البيئة المطلوبة لنظام الإشعارات
+# ═══════════════════════════════════════════════════════════════════
+
+# انسخ هذا الملف إلى .env.local في مشروع Next.js
+# ثم استبدل القيم بالقيم الفعلية من Firebase Console
+
+# ═══════════════════════════════════════════════════════════════════
+# Firebase Configuration
+# ═══════════════════════════════════════════════════════════════════
+# للحصول على هذه القيم:
+# 1. افتح Firebase Console: https://console.firebase.google.com/
+# 2. اختر مشروعك (pharmasky46)
+# 3. اذهب إلى Project Settings > General
+# 4. في قسم "Your apps"، انسخ الـ firebaseConfig
+
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyD6EDxwyeNIQn_GZY5uE6TN2fj-DCl1zEc
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=pharmasky46.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=pharmasky46
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=pharmasky46.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=161754387145
+NEXT_PUBLIC_FIREBASE_APP_ID=1:161754387145:web:cdb298fc73219258927318
+
+# ═══════════════════════════════════════════════════════════════════
+# VAPID Key للحصول على FCM Token
+# ═══════════════════════════════════════════════════════════════════
+# للحصول على VAPID Key:
+# 1. افتح Firebase Console
+# 2. اذهب إلى Project Settings > Cloud Messaging
+# 3. في قسم "Web Push certificates"
+# 4. إذا لم يكن موجودًا، اضغط "Generate key pair"
+# 5. انسخ الـ Key pair وضعه هنا
+
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=BB7lStxGteKJhc5gmVTl6IZWlbWdmgibq9230JHlGCpBfcbX-cRf64DOH8xuttVJ7Tp7fAIFBE45OzLGBtwfARs
+
+# ═══════════════════════════════════════════════════════════════════
+# API URL للخادم
+# ═══════════════════════════════════════════════════════════════════
+NEXT_PUBLIC_API_URL=http://167.71.40.9/api/v1
+
+# ═══════════════════════════════════════════════════════════════════
+# ملاحظات مهمة:
+# ═══════════════════════════════════════════════════════════════════
+# 1. جميع المتغيرات التي تبدأ بـ NEXT_PUBLIC_ متاحة في المتصفح
+# 2. لا تضع معلومات حساسة في متغيرات NEXT_PUBLIC_
+# 3. تأكد من أن جميع القيم صحيحة ومن Firebase Console
+# 4. بعد إضافة المتغيرات، أعد تشغيل الخادم: npm run dev
