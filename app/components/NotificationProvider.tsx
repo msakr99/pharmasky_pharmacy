@@ -60,12 +60,14 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     if (
       autoSetup &&
       authToken &&
+      authToken.trim() !== '' &&
       notifications.isSupported &&
       !notifications.isPermissionGranted &&
       !notifications.isLoading
     ) {
       // تأخير بسيط لتحسين UX
       const timer = setTimeout(() => {
+        console.log('Setting up notifications with token:', authToken.substring(0, 20) + '...');
         notifications.setupPushNotifications(authToken);
       }, 2000);
 

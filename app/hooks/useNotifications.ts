@@ -109,9 +109,15 @@ export const useNotifications = (): UseNotificationsReturn => {
   // ═══════════════════════════════════════════════════════════════
   // طلب إذن الإشعارات
   // ═══════════════════════════════════════════════════════════════
-  const requestPermission = useCallback(async () => {
+  const requestPermission = useCallback(async (authToken: string) => {
     if (!isSupported) {
       setError("الإشعارات غير مدعومة في هذا المتصفح");
+      return;
+    }
+
+    if (!authToken || authToken.trim() === '') {
+      console.warn("No auth token provided for notification permission request");
+      setError("رمز المصادقة غير متاح");
       return;
     }
 
@@ -123,11 +129,11 @@ export const useNotifications = (): UseNotificationsReturn => {
 
       if (token) {
         // إرسال Token إلى Backend
-        const success = await sendTokenToBackend(token);
+        const success = await sendTokenToBackend(token, authToken);
 
         if (success) {
           setIsPermissionGranted(true);
-          console.log("Notifications enabled successfully");
+          console.log("✅ Notifications enabled successfully");
         } else {
           setError("فشل في حفظ Token في الخادم");
         }
@@ -145,9 +151,15 @@ export const useNotifications = (): UseNotificationsReturn => {
   // ═══════════════════════════════════════════════════════════════
   // إعداد الإشعارات بشكل كامل
   // ═══════════════════════════════════════════════════════════════
-  const setupPushNotifications = useCallback(async () => {
+  const setupPushNotifications = useCallback(async (authToken: string) => {
     if (!isSupported) {
       setError("الإشعارات غير مدعومة في هذا المتصفح");
+      return;
+    }
+
+    if (!authToken || authToken.trim() === '') {
+      console.warn("No auth token provided for notifications setup");
+      setError("رمز المصادقة غير متاح");
       return;
     }
 
@@ -155,7 +167,7 @@ export const useNotifications = (): UseNotificationsReturn => {
       setIsLoading(true);
       setError(null);
 
-      await setupNotifications();
+      await setupNotifications(authToken);
       setIsPermissionGranted(true);
     } catch (err) {
       console.error("Error setting up notifications:", err);

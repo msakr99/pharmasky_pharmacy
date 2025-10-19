@@ -22,7 +22,18 @@ export default function NotificationLayout({ children }: NotificationLayoutProps
     if (token) {
       setAuthToken(token);
     }
-  }, []);
+    
+    // تحقق دوري من توفر token (في حالة تأخر التحميل)
+    const checkToken = () => {
+      const currentToken = getToken();
+      if (currentToken && currentToken !== authToken) {
+        setAuthToken(currentToken);
+      }
+    };
+    
+    const interval = setInterval(checkToken, 1000);
+    return () => clearInterval(interval);
+  }, [authToken]);
 
   // الاستماع لتغييرات token
   useEffect(() => {

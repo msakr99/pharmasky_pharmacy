@@ -126,16 +126,16 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
  */
 export const sendTokenToBackend = async (
   token: string,
+  authToken: string,
   userId?: string | number
 ): Promise<boolean> => {
   try {
-    // الحصول على Auth Token من localStorage
-    const authToken = localStorage.getItem("token");
-    
-    if (!authToken) {
-      console.error("No auth token found");
+    if (!authToken || authToken.trim() === '') {
+      console.error("No auth token provided for sending FCM token to backend");
       return false;
     }
+
+    console.log('Sending FCM token to backend with auth token:', authToken.substring(0, 20) + '...');
 
     // إرسال الطلب إلى Django API
     const response = await fetch(
@@ -199,17 +199,22 @@ export const onMessageListener = (
 /**
  * إعداد الإشعارات بشكل كامل: طلب الإذن + الحصول على Token + إرسال للـ Backend
  */
-export const setupNotifications = async (): Promise<void> => {
+export const setupNotifications = async (authToken: string): Promise<void> => {
   try {
+    if (!authToken || authToken.trim() === '') {
+      console.error("No auth token provided for setting up notifications");
+      return;
+    }
+
     // 1. طلب الإذن والحصول على Token
     const token = await requestNotificationPermission();
 
     if (token) {
       // 2. إرسال Token إلى Backend
-      const success = await sendTokenToBackend(token);
+      const success = await sendTokenToBackend(token, authToken);
       
       if (success) {
-        console.log("Notifications setup completed successfully");
+        console.log("✅ Notifications setup completed successfully");
         // حفظ Token في localStorage للمرجعية
         localStorage.setItem("fcm_token", token);
       }
