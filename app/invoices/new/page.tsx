@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getToken } from '../../lib/token-storage'
+import NavBar from '../../components/NavBar'
 
 interface Product {
   id: number
@@ -32,6 +33,7 @@ export default function NewInvoicePage() {
   const [selectedProductIndex, setSelectedProductIndex] = useState(0)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [savingInvoice, setSavingInvoice] = useState(false)
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'warning'} | null>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
@@ -46,6 +48,17 @@ export default function NewInvoicePage() {
       return
     }
     
+    // Load saved invoice items from localStorage
+    const savedItems = localStorage.getItem('draft-invoice-items')
+    if (savedItems) {
+      try {
+        const parsedItems = JSON.parse(savedItems)
+        setInvoiceItems(parsedItems)
+      } catch (error) {
+        console.error('Error loading saved invoice items:', error)
+      }
+    }
+    
     // Auto-fetch current user as customer and user profile
     const loadData = async () => {
       await fetchUserProfile()
@@ -54,6 +67,22 @@ export default function NewInvoicePage() {
     
     loadData()
   }, [router])
+
+  // Separate effect to save items when they change
+  useEffect(() => {
+    if (invoiceItems.length > 0) {
+      localStorage.setItem('draft-invoice-items', JSON.stringify(invoiceItems))
+    }
+  }, [invoiceItems])
+
+  // Cleanup effect for component unmount
+  useEffect(() => {
+    return () => {
+      if (invoiceItems.length > 0) {
+        localStorage.setItem('draft-invoice-items', JSON.stringify(invoiceItems))
+      }
+    }
+  }, [])
 
   const fetchCurrentUserAsCustomer = async (token: string) => {
     try {
@@ -205,7 +234,12 @@ export default function NewInvoicePage() {
       offer_id: currentProduct.offer_id // حفظ offer_id
     } as any
 
-    setInvoiceItems([...invoiceItems, newItem])
+    const updatedItems = [...invoiceItems, newItem]
+    setInvoiceItems(updatedItems)
+    
+    // Save to localStorage
+    localStorage.setItem('draft-invoice-items', JSON.stringify(updatedItems))
+    
     setCurrentProduct(null)
     setCurrentQuantity('')
     setSearchProduct('')
@@ -323,6 +357,9 @@ export default function NewInvoicePage() {
       setToast({ message: '✅ تم حفظ الفاتورة بنجاح!', type: 'success' })
       console.log('📄 Invoice created:', result)
       
+      // Clear saved draft items from localStorage
+      localStorage.removeItem('draft-invoice-items')
+      
       // Redirect after toast is shown
       setTimeout(() => {
         router.push('/dashboard')
@@ -351,7 +388,26 @@ export default function NewInvoicePage() {
   }
 
   const removeItem = (id: string) => {
-    setInvoiceItems(invoiceItems.filter(item => item.id !== id))
+    const updatedItems = invoiceItems.filter(item => item.id !== id)
+    setInvoiceItems(updatedItems)
+    
+    // Save to localStorage
+    localStorage.setItem('draft-invoice-items', JSON.stringify(updatedItems))
+  }
+
+  const clearDraftItems = () => {
+    setShowClearConfirm(true)
+  }
+
+  const handleConfirmClear = () => {
+    setInvoiceItems([])
+    localStorage.removeItem('draft-invoice-items')
+    setToast({ message: '✅ تم مسح البيانات المحفوظة', type: 'success' })
+    setShowClearConfirm(false)
+  }
+
+  const handleCancelClear = () => {
+    setShowClearConfirm(false)
   }
 
   const totalAmount = invoiceItems.reduce((sum, item) => sum + item.total, 0)
@@ -367,6 +423,7 @@ export default function NewInvoicePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <NavBar />
       <div className="p-3 sm:p-6 max-w-6xl mx-auto">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">إضافة فاتورة مبيعات جديدة</h1>
@@ -701,6 +758,18 @@ export default function NewInvoicePage() {
               تأكيد الفاتورة
             </button>
             
+            {invoiceItems.length > 0 && (
+              <button
+                onClick={clearDraftItems}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-md text-sm font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                مسح البيانات المحفوظة
+              </button>
+            )}
+            
             <button
               onClick={() => router.back()}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
@@ -849,6 +918,48 @@ export default function NewInvoicePage() {
             </div>
           </div>
         )}
+
+      {/* Clear Draft Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-red-600 to-rose-600 p-6">
+              <div className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-3">
+                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-xl font-bold">تأكيد مسح البيانات المحفوظة</h3>
+                </div>
+                <button onClick={handleCancelClear} className="hover:bg-white/20 rounded-lg p-2 transition-colors">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700 dark:text-gray-200 text-lg">
+                هل أنت متأكد من مسح جميع الأصناف المضافة للفاتورة؟ سيتم حذف جميع المنتجات المحفوظة ولن تتمكن من التراجع عن هذا الإجراء.
+              </p>
+              <div className="mt-6 flex items-center justify-end gap-3">
+                <button
+                  onClick={handleCancelClear}
+                  className="px-5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={handleConfirmClear}
+                  className="px-5 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors font-semibold"
+                >
+                  نعم، مسح جميع الأصناف
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
         {/* Toast Notification */}
         {toast && (

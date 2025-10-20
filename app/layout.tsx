@@ -4,7 +4,7 @@ import NotificationLayout from './components/NotificationLayout'
 import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: 'Pharmacy App -فارماسكاي',
+  title: 'PharmaSky -فارماسكاي',
   description: ' فارماسكاي ',
   manifest: '/manifest.json',
   themeColor: '#3b82f6',

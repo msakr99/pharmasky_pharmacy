@@ -64,3 +64,22 @@ export interface ChatMessage {
   timestamp: Date
 }
 
+export interface PharmacyRegistrationData {
+  username: string
+  name: string
+  e_name: string
+  password: string
+  confirm_password: string
+}
+
+export interface PharmacyRegistrationResponse {
+  success: boolean
+  message: string
+  data?: {
+    id: number
+    username: string
+    name: string
+    e_name: string
+  }
+}
+
