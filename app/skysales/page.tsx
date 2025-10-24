@@ -65,7 +65,7 @@ export default function SkySalesPage() {
 
     try {
       const token = getToken()
-      const response = await fetch('/api/skyrep/chat', {
+      const response = await fetch('/api/ai-agent/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ export default function SkySalesPage() {
       formData.append('audio', audioBlob, 'recording.wav')
       
       const token = getToken()
-      const response = await fetch('/api/skyrep/voice', {
+      const response = await fetch('/api/ai-agent/voice', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

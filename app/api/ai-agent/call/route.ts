@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const authHeader = req.headers.get('authorization') || ''
 
-    const upstream = await fetch(`${API_BASE_URL}/ai-agent/call/`, {
+    const upstream = await fetch(`${API_BASE_URL}:8001/agent/trained-chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

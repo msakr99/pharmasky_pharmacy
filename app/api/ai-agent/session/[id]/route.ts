@@ -6,7 +6,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params
     const authHeader = req.headers.get('authorization') || ''
-    const upstream = await fetch(`${API_BASE_URL}/ai-agent/session/${id}/`, {
+    const upstream = await fetch(`${API_BASE_URL}:8001/agent/trained-chat`, {
       method: 'GET',
       headers: {
         'Authorization': authHeader,
@@ -26,7 +26,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const { id } = await params
     const authHeader = req.headers.get('authorization') || ''
-    const upstream = await fetch(`${API_BASE_URL}/ai-agent/session/${id}/`, {
+    const upstream = await fetch(`${API_BASE_URL}:8001/agent/trained-chat`, {
       method: 'DELETE',
       headers: {
         'Authorization': authHeader,
