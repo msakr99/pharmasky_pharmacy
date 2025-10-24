@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { getToken, removeToken, getUser } from '../lib/token-storage'
@@ -43,6 +43,7 @@ export default function NavBar({ className }: NavBarProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
 
   useEffect(() => {
     setIsClient(true)
@@ -99,6 +100,7 @@ export default function NavBar({ className }: NavBarProps) {
     }
   }, [isMobileMenuOpen])
 
+
   const handleLogout = useCallback(() => {
     removeToken()
     setToken(null)
@@ -106,6 +108,7 @@ export default function NavBar({ className }: NavBarProps) {
     setIsDropdownOpen(false)
     router.replace(ROUTES.LOGIN)
   }, [router])
+
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen)
@@ -149,6 +152,7 @@ export default function NavBar({ className }: NavBarProps) {
           </nav>
         </div>
         
+
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -302,4 +306,5 @@ export default function NavBar({ className }: NavBarProps) {
     </header>
   )
 }
+
 
